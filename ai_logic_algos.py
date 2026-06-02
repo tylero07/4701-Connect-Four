@@ -1,4 +1,13 @@
-# ─── Evaluation heuristic ────────────────────────────────────────────────────
+
+import sys
+import time
+import math
+import random
+import pygame
+from display import *
+from GameControlLogic import *
+
+
 def score_window(window, player):
     opp = P2 if player == P1 else P1
     pc = window.count(player)

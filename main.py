@@ -14,101 +14,151 @@ from GameControlLogic import *
 from ai_logic_algos import *
 
 
-# ─── Evaluation heuristic ────────────────────────────────────────────────────
-def score_window(window, player):
-    opp = P2 if player == P1 else P1
-    pc = window.count(player)
-    ec = window.count(EMPTY)
-    oc = window.count(opp)
-    if oc > 0:
-        return 0
-    if pc == 4: return 100
-    if pc == 3 and ec == 1: return 5
-    if pc == 2 and ec == 2: return 2
-    return 0
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIN_W, HEIGHT))
+    pygame.display.set_caption("Connect Four — CS470/570")
+    clock = pygame.time.Clock()
 
-def evaluate(board, player):
-    opp = P2 if player == P1 else P1
-    score = 0
-    # Center column bonus
-    center = [board[r][3] for r in range(ROWS)]
-    score += center.count(player) * 3
-    # Horizontal
-    for r in range(ROWS):
-        for c in range(COLS-3):
-            w = [board[r][c+i] for i in range(4)]
-            score += score_window(w, player) - score_window(w, opp)
-    # Vertical
-    for c in range(COLS):
-        for r in range(ROWS-3):
-            w = [board[r+i][c] for i in range(4)]
-            score += score_window(w, player) - score_window(w, opp)
-    # Diagonal /
-    for r in range(ROWS-3):
-        for c in range(COLS-3):
-            w = [board[r+i][c+i] for i in range(4)]
-            score += score_window(w, player) - score_window(w, opp)
-    # Diagonal \
-    for r in range(3, ROWS):
-        for c in range(COLS-3):
-            w = [board[r-i][c+i] for i in range(4)]
-            score += score_window(w, player) - score_window(w, opp)
-    return score
+    font_b = pygame.font.SysFont("Arial", 16, bold=True)
+    font   = pygame.font.SysFont("Arial", 15)
+    font_s = pygame.font.SysFont("Arial", 13)
 
-# ─── Minimax with optional alpha-beta ────────────────────────────────────────
-states_explored = 0
+    # Game state
+    gs = {
+        'board': new_board(),
+        'current_player': P1,
+        'game_over': False,
+        'mode': 'hvai',       # 'hvai' or 'aivai'
+        'human_first': True,
+        'depth': 5,
+        'use_ab': True,
+        'thinking': False,
+        'win_cells': set(),
+        'end_msg': '',
+        'stats': [],
+        'hover_col': None,
+    }
 
-def minimax(board, depth, alpha, beta, maximizing, ai_player, use_ab):
-    global states_explored
-    states_explored += 1
-    opp = P2 if ai_player == P1 else P1
+    def reset():
+        gs['board'] = new_board()
+        gs['current_player'] = P1
+        gs['game_over'] = False
+        gs['thinking'] = False
+        gs['win_cells'] = set()
+        gs['end_msg'] = ''
+        gs['hover_col'] = None
 
-    if check_win(board, ai_player):
-        return 100000 + depth, -1
-    if check_win(board, opp):
-        return -100000 - depth, -1
-    moves = valid_moves(board)
-    if not moves or depth == 0:
-        return evaluate(board, ai_player), -1
+    def human_player():
+        return P1 if gs['human_first'] else P2
 
-    best_col = moves[0]
-    if maximizing:
-        best = -math.inf
-        for col in moves:
-            row = drop(board, col, ai_player)
-            val, _ = minimax(board, depth-1, alpha, beta, False, ai_player, use_ab)
-            undrop(board, col, row)
-            if val > best:
-                best, best_col = val, col
-            if use_ab:
-                alpha = max(alpha, best)
-                if alpha >= beta:
-                    break
-        return best, best_col
-    else:
-        best = math.inf
-        for col in moves:
-            row = drop(board, col, opp)
-            val, _ = minimax(board, depth-1, alpha, beta, True, ai_player, use_ab)
-            undrop(board, col, row)
-            if val < best:
-                best, best_col = val, col
-            if use_ab:
-                beta = min(beta, best)
-                if alpha >= beta:
-                    break
-        return best, best_col
+    def is_ai_turn():
+        if gs['mode'] == 'aivai':
+            return True
+        return gs['current_player'] != human_player()
 
-def ai_move(board, player, depth, use_ab):
-    global states_explored
-    states_explored = 0
-    t0 = time.perf_counter()
-    _, col = minimax(board, depth, -math.inf, math.inf, True, player, use_ab)
-    elapsed_ms = (time.perf_counter() - t0) * 1000
-    if col == -1:
-        col = valid_moves(board)[0]
-    return col, states_explored, elapsed_ms
+    def do_ai_move():
+        if gs['game_over']:
+            return
+        col, n_states, ms = ai_move(gs['board'], gs['current_player'], gs['depth'], gs['use_ab'])
+        update_stats(gs['stats'], gs['depth'], gs['use_ab'], n_states, ms)
+        row = drop(gs['board'], col, gs['current_player'])
+        wins = check_win(gs['board'], gs['current_player'])
+        if wins:
+            gs['game_over'] = True
+            gs['win_cells'] = set(p for w in wins for p in w)
+            who = "Red" if gs['current_player']==P1 else "Yellow"
+            gs['end_msg'] = f"{who} wins! (R to restart)"
+        elif is_draw(gs['board']):
+            gs['game_over'] = True
+            gs['end_msg'] = "Draw! (R to restart)"
+        else:
+            gs['current_player'] = P2 if gs['current_player']==P1 else P1
+        gs['thinking'] = False
 
+    win_pulse = 0
+    ai_delay_frames = 0
 
+    while True:
+        clock.tick(FPS)
+        win_pulse = (win_pulse + 1) % 30
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    pygame.quit(); sys.exit()
+                if event.key == pygame.K_r:
+                    reset()
+                if event.key == pygame.K_a:
+                    gs['use_ab'] = not gs['use_ab']
+                if event.key == pygame.K_UP:
+                    gs['depth'] = min(9, gs['depth']+1)
+                if event.key == pygame.K_DOWN:
+                    gs['depth'] = max(2, gs['depth']-1)
+                if event.key == pygame.K_m:
+                    gs['mode'] = 'aivai' if gs['mode']=='hvai' else 'hvai'
+                    reset()
+                if event.key == pygame.K_f and gs['mode']=='hvai':
+                    gs['human_first'] = not gs['human_first']
+                    reset()
+
+            if event.type == pygame.MOUSEMOTION:
+                mx, _ = event.pos
+                if mx < WIDTH:
+                    gs['hover_col'] = mx // SQUARESIZE
+                else:
+                    gs['hover_col'] = None
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if gs['game_over'] or gs['thinking']:
+                    continue
+                if gs['mode'] == 'hvai' and not is_ai_turn():
+                    mx, my = event.pos
+                    if mx < WIDTH and my > SQUARESIZE:
+                        col = mx // SQUARESIZE
+                        if col in valid_moves(gs['board']):
+                            row = drop(gs['board'], col, gs['current_player'])
+                            wins = check_win(gs['board'], gs['current_player'])
+                            if wins:
+                                gs['game_over'] = True
+                                gs['win_cells'] = set(p for w in wins for p in w)
+                                gs['end_msg'] = "You win! 🎉 (R to restart)"
+                            elif is_draw(gs['board']):
+                                gs['game_over'] = True
+                                gs['end_msg'] = "Draw! (R to restart)"
+                            else:
+                                gs['current_player'] = P2 if gs['current_player']==P1 else P1
+                                gs['thinking'] = True
+                                ai_delay_frames = 8
+
+        # Trigger AI move after a short delay
+        if gs['thinking'] and not gs['game_over']:
+            ai_delay_frames -= 1
+            if ai_delay_frames <= 0:
+                do_ai_move()
+
+        # AI vs AI: schedule next move
+        if gs['mode']=='aivai' and not gs['game_over'] and not gs['thinking']:
+            gs['thinking'] = True
+            ai_delay_frames = 20
+
+        # Draw win pulse (toggle visibility)
+        active_win_cells = gs['win_cells'] if win_pulse < 20 else set()
+
+        draw_board(screen, gs['board'],
+                   win_cells=active_win_cells,
+                   hover_col=gs['hover_col'] if not is_ai_turn() else None,
+                   current_player=gs['current_player'] if not gs['game_over'] else None)
+
+        # Panel background
+        pygame.draw.rect(screen, (18, 28, 48), (WIDTH, 0, PANEL_W, HEIGHT))
+        pygame.draw.line(screen, (40,55,80), (WIDTH, 0), (WIDTH, HEIGHT), 2)
+
+        draw_panel(screen, font_b, font, font_s, gs)
+        pygame.display.flip()
+        
 if __name__ == '__main__':
     main()

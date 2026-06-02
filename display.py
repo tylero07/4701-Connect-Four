@@ -1,8 +1,4 @@
-import sys
-import time
-import math
-import random
-import pygame 
+import pygame
 
 ROWS, COLS = 6, 7
 SQUARESIZE = 90
