@@ -1,0 +1,32 @@
+Algorithm,Depth,Alpha-Beta,Player,States Explored,Avg Time (ms),Outcome
+Minimax no pruning depth 1,1,False,Red,32,0.91,Red wins
+Minimax no pruning depth 1,1,False,Yellow,24,0.95,Red wins
+Minimax no pruning depth 2,2,False,Red,574,3.34,Draw
+Minimax no pruning depth 2,2,False,Yellow,546,3.06,Draw
+Minimax no pruning depth 3,3,False,Red,4055,21.33,Draw
+Minimax no pruning depth 3,3,False,Yellow,3894,20.46,Draw
+Minimax no pruning depth 4,4,False,Red,25165,152.75,Red wins
+Minimax no pruning depth 4,4,False,Yellow,24258,153.82,Red wins
+Minimax no pruning depth 5,5,False,Red,125117,726.39,Yellow wins
+Minimax no pruning depth 5,5,False,Yellow,120161,697.47,Yellow wins
+Minimax no pruning depth 6,6,False,Red,746622,4308.57,Red wins
+Minimax no pruning depth 6,6,False,Yellow,688032,4123.49,Red wins
+
+Minimax w/ Alpha-Beta depth 1,1,True,Red,32,0.94,Red wins
+Minimax w/ Alpha-Beta depth 1,1,True,Yellow,24,1.00,Red wins
+Minimax w/ Alpha-Beta depth 2,2,True,Red,329,1.73,Draw
+Minimax w/ Alpha-Beta depth 2,2,True,Yellow,326,1.75,Draw
+Minimax w/ Alpha-Beta depth 3,3,True,Red,1571,8.22,Draw
+Minimax w/ Alpha-Beta depth 3,3,True,Yellow,1475,7.74,Draw
+Minimax w/ Alpha-Beta depth 4,4,True,Red,4865,25.85,Red wins
+Minimax w/ Alpha-Beta depth 4,4,True,Yellow,4981,28.08,Red wins
+Minimax w/ Alpha-Beta depth 5,5,True,Red,11196,58.50,Yellow wins
+Minimax w/ Alpha-Beta depth 5,5,True,Yellow,12026,62.35,Yellow wins
+Minimax w/ Alpha-Beta depth 6,6,True,Red,26445,132.32,Red wins
+Minimax w/ Alpha-Beta depth 6,6,True,Yellow,27884,148.61,Red wins
+Minimax w/ Alpha-Beta depth 7,7,True,Red,114053,645.52,Red wins
+Minimax w/ Alpha-Beta depth 7,7,True,Yellow,59630,356.82,Red wins
+Minimax w/ Alpha-Beta depth 8,8,True,Red,229539,1092.12,Draw
+Minimax w/ Alpha-Beta depth 8,8,True,Yellow,227214,1136.28,Draw
+Minimax w/ Alpha-Beta depth 9,9,True,Red,1066606,5303.88,Draw
+Minimax w/ Alpha-Beta depth 9,9,True,Yellow,482530,2265.64,Draw

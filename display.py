@@ -1,3 +1,4 @@
+"""Holds All The Data And Settings For Drawing/Rendering Pygame Needs"""
 import pygame
 
 ROWS, COLS = 6, 7
@@ -11,7 +12,7 @@ EMPTY, P1, P2 = 0, 1, 2
 
 FPS = 60
 
-# Colours
+"""Color Palate Definition Contstants"""
 BOARD_BG   = (26,  58, 107)
 BOARD_EDGE = (18,  45,  84)
 EMPTY_C    = (10,  32,  68)
@@ -29,8 +30,8 @@ WIN_GLOW   = (255, 255, 100)
 
 CENTER_ORDER = [3, 2, 4, 1, 5, 0, 6]
 
-# ─── Pygame UI ───────────────────────────────────────────────────────────────
 def draw_board(screen, board, win_cells=None, hover_col=None, current_player=None):
+    """Draw Game Setting the size borders Color Game Space/Shapes Palate Etc (All Non Alpha Numerics For the Display)"""
     # Background
     screen.fill(BG)
 
@@ -76,6 +77,7 @@ def draw_board(screen, board, win_cells=None, hover_col=None, current_player=Non
         pygame.draw.circle(screen, color, (cx, cy), RADIUS, 3)
 
 def draw_panel(screen, font_b, font, font_s, game_state):
+    """Initialize and Set all Text And Descriptors For The Game"""
     px = WIDTH + 14
     y = 18
 
@@ -124,7 +126,7 @@ def draw_panel(screen, font_b, font, font_s, game_state):
 
     depth = game_state['depth']
     ab = game_state['use_ab']
-    txt(f"Depth: {depth}   (↑/↓ to change)", font_s, TEXT_C, center=True)
+    txt(f"Depth: {depth}   (Arrow UP/DOWN to change)", font_s, TEXT_C, center=True)
     ab_color = GREEN if ab else (200,80,80)
     txt(f"Alpha-Beta: {'ON' if ab else 'OFF'}   (A to toggle)", font_s, ab_color, center=True)
     y += 4

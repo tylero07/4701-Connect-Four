@@ -11,11 +11,12 @@ import random
 import pygame
 from display import *
 from GameControlLogic import *
-from ai_logic_algos import *
+from AIandTurnLogic import *
 
 
 def main():
     pygame.init()
+    init_csv()
     screen = pygame.display.set_mode((WIN_W, HEIGHT))
     pygame.display.set_caption("Connect Four — CS470/570")
     clock = pygame.time.Clock()
@@ -38,8 +39,10 @@ def main():
         'end_msg': '',
         'stats': [],
         'hover_col': None,
+        'total_states': {P1: 0, P2: 0},
+        'move_times': {P1: [], P2: []},
     }
-
+    # reset game state
     def reset():
         gs['board'] = new_board()
         gs['current_player'] = P1
@@ -48,7 +51,10 @@ def main():
         gs['win_cells'] = set()
         gs['end_msg'] = ''
         gs['hover_col'] = None
-
+        gs['total_states'] = {P1: 0, P2: 0}
+        gs['move_times'] = {P1: [], P2: []}
+    
+    # Define player AnD Moves
     def human_player():
         return P1 if gs['human_first'] else P2
 
@@ -62,23 +68,34 @@ def main():
             return
         col, n_states, ms = ai_move(gs['board'], gs['current_player'], gs['depth'], gs['use_ab'])
         update_stats(gs['stats'], gs['depth'], gs['use_ab'], n_states, ms)
-        row = drop(gs['board'], col, gs['current_player'])
-        wins = check_win(gs['board'], gs['current_player'])
+
+        p = gs['current_player']
+        gs['total_states'][p] += n_states
+        gs['move_times'][p].append(ms)
+
+        row = drop(gs['board'], col, p)
+        wins = check_win(gs['board'], p)
         if wins:
             gs['game_over'] = True
-            gs['win_cells'] = set(p for w in wins for p in w)
-            who = "Red" if gs['current_player']==P1 else "Yellow"
+            gs['win_cells'] = set(pt for w in wins for pt in w)
+            who = "Red" if p == P1 else "Yellow"
             gs['end_msg'] = f"{who} wins! (R to restart)"
+            for player, label in [(P1, "Red"), (P2, "Yellow")]:
+                avg_ms = sum(gs['move_times'][player]) / len(gs['move_times'][player]) if gs['move_times'][player] else 0
+                log_move(gs['depth'], gs['use_ab'], gs['total_states'][player], avg_ms, outcome=f"{who} wins", player=label)
         elif is_draw(gs['board']):
             gs['game_over'] = True
             gs['end_msg'] = "Draw! (R to restart)"
+            for player, label in [(P1, "Red"), (P2, "Yellow")]:
+                avg_ms = sum(gs['move_times'][player]) / len(gs['move_times'][player]) if gs['move_times'][player] else 0
+                log_move(gs['depth'], gs['use_ab'], gs['total_states'][player], avg_ms, outcome="Draw", player=label)
         else:
-            gs['current_player'] = P2 if gs['current_player']==P1 else P1
+            gs['current_player'] = P2 if p == P1 else P1
         gs['thinking'] = False
 
     win_pulse = 0
     ai_delay_frames = 0
-
+    # game logic sets frames and enum for keypress and click logic for 'buttons'
     while True:
         clock.tick(FPS)
         win_pulse = (win_pulse + 1) % 30
@@ -97,7 +114,7 @@ def main():
                 if event.key == pygame.K_UP:
                     gs['depth'] = min(9, gs['depth']+1)
                 if event.key == pygame.K_DOWN:
-                    gs['depth'] = max(2, gs['depth']-1)
+                    gs['depth'] = max(1, gs['depth']-1)
                 if event.key == pygame.K_m:
                     gs['mode'] = 'aivai' if gs['mode']=='hvai' else 'hvai'
                     reset()
@@ -159,6 +176,6 @@ def main():
 
         draw_panel(screen, font_b, font, font_s, gs)
         pygame.display.flip()
-        
+
 if __name__ == '__main__':
     main()
