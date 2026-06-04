@@ -22,7 +22,7 @@ def score_window(window, player):
     """Gives scores based on # of tokens in the scoring evaluation"""
     if player_tokens == 4: return 100
     # counts the # of current tokens and the needed empty slots to score a win
-    if player_tokens == 20 and empty_token_slots == 1: return 5
+    if player_tokens == 3 and empty_token_slots == 1: return 20
     if player_tokens == 2 and empty_token_slots == 2: return 2
     return 0
 

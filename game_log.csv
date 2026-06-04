@@ -42,3 +42,9 @@ Minimax w/ Alpha-Beta depth 5,5,True,Red,10800,75.50,Yellow wins
 Minimax w/ Alpha-Beta depth 5,5,True,Yellow,7727,54.40,Yellow wins
 Minimax w/ Alpha-Beta depth 6,6,True,Red,27640,148.51,Yellow wins
 Minimax w/ Alpha-Beta depth 6,6,True,Yellow,29744,161.54,Yellow wins
+Minimax w/ Alpha-Beta depth 5,5,True,Red,20567,129.81,Yellow wins
+Minimax w/ Alpha-Beta depth 5,5,True,Yellow,17457,108.22,Yellow wins
+Minimax w/ Alpha-Beta depth 5,5,True,Red,20567,128.93,Yellow wins
+Minimax w/ Alpha-Beta depth 5,5,True,Yellow,17457,109.34,Yellow wins
+Minimax w/ Alpha-Beta depth 6,6,True,Red,45744,241.78,Draw
+Minimax w/ Alpha-Beta depth 6,6,True,Yellow,54886,291.84,Draw
