@@ -162,7 +162,7 @@ def main():
             gs['thinking'] = True
             ai_delay_frames = 20
 
-        # Draw win pulse (toggle visibility)
+        # Draw win and update board
         active_win_cells = gs['win_cells'] if win_pulse < 20 else set()
 
         draw_board(screen, gs['board'],

@@ -1,4 +1,11 @@
+"""This file contains basic game logic for checking wins, resetting the board
+    checking valid moves, and drop/undropping tokens"""
 from display import *
+
+"""This is critical for making the heuristic work
+    The columns are ordered by their values 3 (middle) being the best play and alternating out
+    to the ends (0 and 6) being the least valuable"""
+CENTER_ORDER = [3, 2, 4, 1, 5, 0, 6]
 
 def new_board():
     """Used to iterate to clear board on reset"""

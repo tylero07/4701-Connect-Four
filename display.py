@@ -28,10 +28,13 @@ GREEN      = (50,  200, 100)
 DARK_GREEN = (30,  140,  60)
 WIN_GLOW   = (255, 255, 100)
 
+"""This is critical for making the heuristic work
+    The columns are ordered by their values 3 (middle) being the best play and alternating out
+    to the ends (0 and 6) being the least valuable"""
 CENTER_ORDER = [3, 2, 4, 1, 5, 0, 6]
 
 def draw_board(screen, board, win_cells=None, hover_col=None, current_player=None):
-    """Draw Game Setting the size borders Color Game Space/Shapes Palate Etc (All Non Alpha Numerics For the Display)"""
+    """Draw Game Setting the size borders Color Game Space/Shapes/visuals Palate Etc (All Non Alpha Numerics For the Display)"""
     # Background
     screen.fill(BG)
 

@@ -8,21 +8,27 @@ from display import *
 from GameControlLogic import *
 
 def score_window(window, player):
-    """Display Logic For the Score Window"""
+    """Scores in windows of 4 <- needed claude to help build this heuristic
+    assigns values to tokens within window based on proximity to win in the 
+    if player_tokens block"""
     opponent = P2 if player == P1 else P1
-    pc = window.count(player)
-    ec = window.count(EMPTY)
-    oc = window.count(opponent)
-    if oc > 0:
+    """Window count of tokens"""
+    player_tokens = window.count(player)
+    empty_token_slots = window.count(EMPTY)
+    opponent_tokens = window.count(opponent)
+    # indicates a block -> no win possible in the window
+    if opponent_tokens > 0:
         return 0
-    if pc == 4: return 100
-    if pc == 3 and ec == 1: return 5
-    if pc == 2 and ec == 2: return 2
+    """Gives scores based on # of tokens in the scoring evaluation"""
+    if player_tokens == 4: return 100
+    # counts the # of current tokens and the needed empty slots to score a win
+    if player_tokens == 20 and empty_token_slots == 1: return 5
+    if player_tokens == 2 and empty_token_slots == 2: return 2
     return 0
 
 
 def evaluate(board, player):
-    """Win Condition Evaluations"""
+    """Win Condition Scenario Evaluations"""
     opponent = P2 if player == P1 else P1
     score = 0
     # Center column bonus
@@ -62,7 +68,7 @@ def minimax(board, depth, alpha, beta, maximizing, ai_player, use_alpha_beta_pru
     opponent = P2 if ai_player == P1 else P1
 
     # sets the win/loss condition to overwhelming values
-    # depth - 1 to help choose/avoid the shallowest win/loss <- good reccomandation by claude
+    # depth - 1 to help choose/avoid the shallowest win/loss <- good recomandation by claude
     if check_win(board, ai_player):
         return 100000 + depth, -1
     if check_win(board, opponent):
@@ -116,8 +122,8 @@ def minimax(board, depth, alpha, beta, maximizing, ai_player, use_alpha_beta_pru
                     break
         return best, best_col
 
-"""Logic to Make AI/Opponent Move"""
 def ai_move(board, player, depth, use_alpha_beta_prune):
+    """Logic to Make AI/Opponent Move"""
     global states_explored
     states_explored = 0
     t0 = time.perf_counter()
@@ -135,6 +141,7 @@ import os
 CSV_FILE = "game_log.csv"
 
 def init_csv():
+    """builds log of average move times in ms, number of states explored etc for game result logging"""
     if not os.path.exists(CSV_FILE):
         with open(CSV_FILE, 'w', newline='') as f:
             writer = csv.writer(f)
